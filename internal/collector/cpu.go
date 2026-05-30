@@ -6,6 +6,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/shirou/gopsutil/v3/cpu"
 )
 
 // CPUCollector reads Intel coretemp temperature and Intel RAPL package power.
@@ -32,12 +34,16 @@ func NewCPUCollector() (*CPUCollector, error) {
 		}
 	}
 
+	// Prime the gopsutil CPU percent counter so the first Collect() call
+	// returns an accurate delta rather than 0.
+	_, _ = cpu.Percent(0, false)
+
 	return c, nil
 }
 
-// Collect returns (cpu package temperature °C, cpu package power watts).
+// Collect returns (cpu package temperature °C, cpu package power watts, cpu usage %).
 // Returns 0 for values that cannot be read.
-func (c *CPUCollector) Collect() (tempC float64, watts float64) {
+func (c *CPUCollector) Collect() (tempC float64, watts float64, usagePct float64) {
 	if c.hwmonTempPath != "" {
 		if v, err := readUint64File(c.hwmonTempPath); err == nil {
 			tempC = float64(v) / 1000.0
@@ -54,6 +60,10 @@ func (c *CPUCollector) Collect() (tempC float64, watts float64) {
 			c.lastEnergy = energy
 			c.lastTime = time.Now()
 		}
+	}
+
+	if pcts, err := cpu.Percent(0, false); err == nil && len(pcts) > 0 {
+		usagePct = pcts[0]
 	}
 
 	return
