@@ -24,6 +24,9 @@ jobs:
         id: version
         run: echo "VERSION=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
 
+      - name: Tidy modules
+        run: go mod tidy
+
       - name: Build Linux amd64
         env:
           VERSION: ${{ steps.version.outputs.VERSION }}
