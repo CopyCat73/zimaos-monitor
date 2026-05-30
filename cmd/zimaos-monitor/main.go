@@ -27,6 +27,7 @@ type zimaosInfo struct {
 type metrics struct {
 	CPUTemp        float64               `json:"cpu_temp"`
 	CPUWatts       float64               `json:"cpu_watts"`
+	CPUUsagePct    float64               `json:"cpu_usage_pct"`
 	RAMUsedPct     float64               `json:"ram_used_pct"`
 	RAMAvailableGB float64               `json:"ram_available_gb"`
 	RAMTotalGB     float64               `json:"ram_total_gb"`
@@ -90,7 +91,7 @@ func main() {
 	updateTopic := fmt.Sprintf("%s/update", cfg.Device.ID)
 
 	collect := func() {
-		cpuTemp, cpuWatts := cpu.Collect()
+		cpuTemp, cpuWatts, cpuUsagePct := cpu.Collect()
 
 		memStats, err := collector.CollectMemory()
 		if err != nil {
@@ -105,6 +106,7 @@ func main() {
 		m := metrics{
 			CPUTemp:        cpuTemp,
 			CPUWatts:       cpuWatts,
+			CPUUsagePct:    cpuUsagePct,
 			RAMUsedPct:     memStats.UsedPct,
 			RAMAvailableGB: memStats.AvailableGB,
 			RAMTotalGB:     memStats.TotalGB,

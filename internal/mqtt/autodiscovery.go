@@ -92,6 +92,17 @@ func (c *Client) PublishDiscovery(disks []config.DiskConfig, purgeStale bool) er
 			Origin:            origin,
 		},
 		{
+			Name:              "CPU Usage",
+			UniqueID:          fmt.Sprintf("%s_cpu_usage_pct", c.cfg.Device.ID),
+			StateTopic:        stateTopic,
+			ValueTemplate:     "{{ value_json.cpu_usage_pct | round(1) }}",
+			UnitOfMeasurement: "%",
+			StateClass:        "measurement",
+			Icon:              "mdi:cpu-64-bit",
+			Device:            dev,
+			Origin:            origin,
+		},
+		{
 			Name:              "RAM Used",
 			UniqueID:          fmt.Sprintf("%s_ram_used_pct", c.cfg.Device.ID),
 			StateTopic:        stateTopic,
